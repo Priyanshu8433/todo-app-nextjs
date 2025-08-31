@@ -13,9 +13,14 @@ export default function Home() {
 
   useEffect(() => {
     const fetchTasks = async () => {
-      const response = await axios.get("/api/tasks");
-      setTaskList(response.data.tasks);
+      try {
+        const response = await axios.get("/api/tasks");
+        setTaskList(response.data.tasks);
+      } catch (error) {
+        console.error("Error fetching tasks:", error);
+      }
     };
+
     fetchTasks();
   }, []);
 

@@ -8,7 +8,10 @@ export const GET = async (req) => {
     const tasks = await Task.find();
     return NextResponse.json({ status: "success", tasks });
   } catch (error) {
-    return NextResponse.json({ status: "error", message: error.message });
+    return NextResponse.json(
+      { status: "error", message: error.message },
+      { status: 500 }
+    );
   }
 };
 
@@ -19,7 +22,10 @@ export const POST = async (req) => {
     const task = await Task.create({ title, completed });
     return NextResponse.json({ status: "success", task });
   } catch (error) {
-    return NextResponse.json({ status: "error", message: error.message });
+    return NextResponse.json(
+      { status: "error", message: error.message },
+      { status: 500 }
+    );
   }
 };
 
@@ -30,7 +36,10 @@ export const PATCH = async (req) => {
     const task = await Task.findByIdAndUpdate(id, { completed }, { new: true });
     return NextResponse.json({ status: "success", task });
   } catch (error) {
-    return NextResponse.json({ status: "error", message: error.message });
+    return NextResponse.json(
+      { status: "error", message: error.message },
+      { status: 500 }
+    );
   }
 };
 
@@ -41,7 +50,10 @@ export const DELETE = async (req) => {
     await Task.findByIdAndDelete(id);
     return NextResponse.json({ status: "success" });
   } catch (error) {
-    return NextResponse.json({ status: "error", message: error.message });
+    return NextResponse.json(
+      { status: "error", message: error.message },
+      { status: 500 }
+    );
   }
 };
 
