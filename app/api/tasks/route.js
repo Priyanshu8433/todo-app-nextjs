@@ -1,64 +1,101 @@
 import { NextResponse } from "next/server";
-const Task = require("../../../models/task");
-import db from "../../../lib/db";
+import connectDB from "@/lib/db";
+import Task from "@/models/task";
 
-export const GET = async (req) => {
+export const dynamic = "force-dynamic";
+
+function handleError(error, label) {
+  console.error(`[API /api/tasks ${label}]`, error);
+  return NextResponse.json(
+    { status: "error", message: error.message || "Internal Server Error" },
+    { status: 500 }
+  );
+}
+
+export async function GET() {
   try {
-    await db();
-    const tasks = await Task.find();
+    console.log("[API /api/tasks] GET called");
+    await connectDB();
+    const tasks = await Task.find({}).sort({ createdAt: -1 });
     return NextResponse.json({ status: "success", tasks });
   } catch (error) {
-    return NextResponse.json(
-      { status: "error", message: error.message },
-      { status: 500 }
-    );
+    return handleError(error, "GET");
   }
-};
+}
 
-export const POST = async (req) => {
+export async function POST(req) {
   try {
-    await db();
-    const { title, completed } = await req.json();
-    const task = await Task.create({ title, completed });
-    return NextResponse.json({ status: "success", task });
+    console.log("[API /api/tasks] POST called");
+    await connectDB();
+    const { title, completed = false } = await req.json();
+    if (!title || !title.trim()) {
+      return NextResponse.json(
+        { status: "error", message: "Title is required" },
+        { status: 400 }
+      );
+    }
+    const task = await Task.create({ title: title.trim(), completed });
+    return NextResponse.json({ status: "success", task }, { status: 201 });
   } catch (error) {
-    return NextResponse.json(
-      { status: "error", message: error.message },
-      { status: 500 }
-    );
+    return handleError(error, "POST");
   }
-};
+}
 
-export const PATCH = async (req) => {
+export async function PATCH(req) {
   try {
-    await db();
+    console.log("[API /api/tasks] PATCH called");
+    await connectDB();
     const { id, completed } = await req.json();
-    const task = await Task.findByIdAndUpdate(id, { completed }, { new: true });
+    if (!id) {
+      return NextResponse.json(
+        { status: "error", message: "Task id is required" },
+        { status: 400 }
+      );
+    }
+    const task = await Task.findByIdAndUpdate(
+      id,
+      { completed: !!completed },
+      { new: true }
+    );
+    if (!task) {
+      return NextResponse.json(
+        { status: "error", message: "Task not found" },
+        { status: 404 }
+      );
+    }
     return NextResponse.json({ status: "success", task });
   } catch (error) {
-    return NextResponse.json(
-      { status: "error", message: error.message },
-      { status: 500 }
-    );
+    return handleError(error, "PATCH");
   }
-};
+}
 
-export const DELETE = async (req) => {
+export async function DELETE(req) {
   try {
-    await db();
+    console.log("[API /api/tasks] DELETE called");
+    await connectDB();
     const { id } = await req.json();
-    await Task.findByIdAndDelete(id);
+    if (!id) {
+      return NextResponse.json(
+        { status: "error", message: "Task id is required" },
+        { status: 400 }
+      );
+    }
+    const deleted = await Task.findByIdAndDelete(id);
+    if (!deleted) {
+      return NextResponse.json(
+        { status: "error", message: "Task not found" },
+        { status: 404 }
+      );
+    }
     return NextResponse.json({ status: "success" });
   } catch (error) {
-    return NextResponse.json(
-      { status: "error", message: error.message },
-      { status: 500 }
-    );
+    return handleError(error, "DELETE");
   }
-};
+}
 
-export const OPTIONS = async () =>
-  new NextResponse(null, {
+export async function OPTIONS() {
+  return new NextResponse(null, {
     status: 204,
     headers: { Allow: "GET,POST,PATCH,DELETE,OPTIONS" },
   });
+}
