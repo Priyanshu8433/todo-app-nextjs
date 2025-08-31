@@ -14,7 +14,7 @@ A fullstack task management app built with Next.js 15, React 19, MongoDB, Tailwi
 
 ## Tech Stack
 
-- **Frontend:** Next.js (App Router), React, Tailwind CSS, Radix UI, Lucide Icons
+- **Frontend:** Next.js (App Router), React, Tailwind CSS, ShadCn UI, Lucide Icons
 - **Backend:** Next.js API routes, Mongoose (MongoDB)
 
 ## Getting Started
