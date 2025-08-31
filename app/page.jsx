@@ -12,16 +12,21 @@ export default function Home() {
   const [taskList, setTaskList] = useState([]);
 
   useEffect(() => {
-    const fetchTasks = async () => {
+    let cancelled = false;
+    (async () => {
       try {
-        const response = await axios.get("/api/tasks");
-        setTaskList(response.data.tasks);
+        const { data } = await axios.get("/api/tasks");
+        if (!cancelled) {
+          setTaskList(Array.isArray(data?.tasks) ? data.tasks : []);
+        }
       } catch (error) {
+        if (!cancelled) setTaskList([]);
         console.error("Error fetching tasks:", error);
       }
+    })();
+    return () => {
+      cancelled = true;
     };
-
-    fetchTasks();
   }, []);
 
   return (
