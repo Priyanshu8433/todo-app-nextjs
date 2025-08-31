@@ -44,3 +44,9 @@ export const DELETE = async (req) => {
     return NextResponse.json({ status: "error", message: error.message });
   }
 };
+
+export const OPTIONS = async () =>
+  new NextResponse(null, {
+    status: 204,
+    headers: { Allow: "GET,POST,PATCH,DELETE,OPTIONS" },
+  });
